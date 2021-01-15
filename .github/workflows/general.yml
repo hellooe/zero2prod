@@ -42,9 +42,10 @@ jobs:
           override: true
       - run: rustup component add clippy
       - name: Migrate database
+        env:
+          DATABASE_URL: postgres://admin:1234@localhost:5432/admin
         run: |
           cargo install sqlx-cli --no-default-features --features postgres
-          DATABASE_URL=postgres://admin:1234@localhost:5432/admin
           sqlx database create
           sqlx migrate run
       - uses: actions-rs/cargo@v1

@@ -50,11 +50,10 @@ pub fn get_config() -> Result<Settings, config::ConfigError> {
     let config_dir = base_path.join("configuration");
     settings.merge(config::File::from(config_dir.join("base")).required(true))?;
 
-    let environment: Environment = std::env::var("APP_ENVIRONMENT")
-        .unwrap_or("local".into())
-        .try_into()
-        .unwrap();
-    settings.merge(config::File::from(config_dir.join(environment.as_str())).required(true))?;
+    if let Ok(environment) = std::env::var("APP_ENVIRONMENT") {
+        let environment: Environment = environment.try_into().unwrap();
+        settings.merge(config::File::from(config_dir.join(environment.as_str())).required(true))?;
+    }
 
     settings.try_into()
 }

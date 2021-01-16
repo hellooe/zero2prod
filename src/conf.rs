@@ -47,7 +47,7 @@ impl DbSettings {
 pub fn get_config() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
     let base_path = std::env::current_dir().unwrap();
-    let config_dir = base_path.join("configuration");
+    let config_dir = base_path.join("conf");
     settings.merge(config::File::from(config_dir.join("base")).required(true))?;
 
     if let Ok(environment) = std::env::var("APP_ENVIRONMENT") {

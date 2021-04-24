@@ -1,18 +1,14 @@
-use sqlx::postgres::PgPoolOptions;
-use std::net::TcpListener;
-use zero2prod::conf::get_config;
 use zero2prod::startup::run;
-use zero2prod::telemetry::init_subscriber;
+use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    init_subscriber();
-    let config = get_config().expect("Failed to read configuration.");
-    let db_pool = PgPoolOptions::new()
-        .connect_with(config.database.with_db())
-        .await
-        .expect("Failed to connect to Postgres.");
-    let addr = format!("{}:{}", config.application.host, config.application.port);
-    let listener = TcpListener::bind(addr)?;
-    run(listener, db_pool).await
+    dotenv::dotenv().ok();
+    let subscriber = get_subscriber("zero2prod".into(), "info".into());
+    init_subscriber(subscriber);
+
+    let lst_addr = std::env::var("LST_ADDR").unwrap_or("127.0.0.1:8000".into());
+    let db_url = std::env::var("DATABASE_URL").unwrap();
+
+    run(&lst_addr, &db_url).await
 }
